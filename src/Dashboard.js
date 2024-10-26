@@ -1,9 +1,114 @@
-import { Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+const useStyles = makeStyles((theme) => ({
+  searchContainer: {
+    maxWidth: '400px',
+    margin: 'auto',
+    marginTop: '1rem',
+    padding: '0.5rem 0',
+    display: 'flex',
+    justifyContent: 'start',
+    alignItems: 'center',
+    boxShadow: '0 4px 6px rgba(59, 130, 246, 0.3)',
+    backgroundColor: '#eff6ff',
+    width: '100%',
+    borderRadius: '9999px',
+    marginBottom: '50px',
+  },
+  icon: {
+    padding: '0 0.75rem',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  svgIcon: {
+    height: '1.25rem', // Equivalent to h-5 in Tailwind CSS
+  },
+  input: {
+    width: '100%',
+    backgroundColor: 'transparent',
+    fontSize: '1rem',
+    outline: 'none',
+    border: 'none',
+  },
+  message: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    maxWidth: '500px',
+    margin: '0 auto', // Center horizontally
+    backgroundColor: '#fee2e2',
+    color: '#b91c1c',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    textAlign: 'center',
+    border: '1px solid rgba(0, 0, 0, 0.1)',
+  },
+  info: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    gap: '10px',
+    padding: '20px',
+    flexWrap: 'wrap',
+  },
+  eligibleForSwag: {
+    width: 'fit-content',
+    height: '80px',
+    padding: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: '10px',
+    backgroundColor: '#ecfdf5',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: '1px solid #d1fae5',
+  },
+  eligibleForSwagText: {
+    marginRight: '10px',
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#10b981',
+  },
+  eligibleForSwagNumber: {
+    fontSize: '24px',
+    borderLeft: '2px solid #047857',
+    paddingLeft: '10px',
+    color: '#065f46',
+  },
+  totalParticipants: {
+    width: 'fit-content',
+    height: '80px',
+    padding: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: '10px',
+    backgroundColor: '#eff6ff',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: '1px solid #dbeafe',
+  },
+  totalParticipantsText: {
+    marginRight: '40px',
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#3b82f6',
+  },
+  totalParticipantsNumber: {
+    fontSize: '24px',
+    borderLeft: '2px solid #1d4ed8',
+    paddingLeft: '10px',
+    color: '#1e40af',
+  },
+}));
 const Dashboard = () => {
+  const classes = useStyles();
   const [data, setData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+
 
   useEffect(() => {
     // In a real application, you would fetch the CSV data here
@@ -155,12 +260,25 @@ const Dashboard = () => {
     });
 
     setData(parsedData);
-  }, []);
+    setFilteredData(parsedData);
 
-  const totalParticipants = data.length;
-  const completedRedemption = data.filter(item => item.redemptionStatus === 'Yes').length;
-  const totalSkillBadges = data.reduce((sum, item) => sum + item.skillBadgesCompleted, 0);
-  const totalArcadeGames = data.reduce((sum, item) => sum + item.arcadeGamesCompleted, 0);
+  }, []);
+   const handleSearch = () => {
+    const filtered = data.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm]);
+
+  const totalParticipants = filteredData.length;
+  const completedRedemption = filteredData.filter(item => item.redemptionStatus === 'Yes').length;
+  const totalSkillBadges = filteredData.reduce((sum, item) => sum + item.skillBadgesCompleted, 0);
+  const totalArcadeGames = filteredData.reduce((sum, item) => sum + item.arcadeGamesCompleted, 0);
 
   const chartData = [
     { name: 'Skill Badges', count: totalSkillBadges },
@@ -170,18 +288,57 @@ const Dashboard = () => {
   return (
     <div style={{ padding: '20px' }}>
       <Typography
-  variant="h4"
-  gutterBottom
-  style={{
-    background: 'linear-gradient(90deg, #4285F4 33.33%, #DB4437 33.33%, #DB4437 66.66%, #F4B400 66.66%, #F4B400 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  }}
->
-  Gen AI Study Jam Progress Dashboard
-</Typography>
+        variant="h4"
+        gutterBottom
+        style={{
+          background: 'linear-gradient(90deg, #4285F4 33.33%, #DB4437 33.33%, #DB4437 66.66%, #F4B400 66.66%, #F4B400 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}
+      >
+        Gen AI Study Jam Progress Dashboard
+      </Typography>
+      <div className={classes.message}>
+  <p className="text-center">Deadline:</p><br></br>
+  <p> 31st October 2024 | 11:59 PM {"(IST)"}</p>
+</div>
 
-      <Grid container spacing={3} style={{ marginBottom: '20px' }}>
+<div className={classes.info}>
+  <div className={classes.eligibleForSwag}>
+    <p className={classes.eligibleForSwagText}>
+      No of Eligible <br /> Participants for swags
+    </p>
+    <p className={classes.eligibleForSwagNumber}>
+      0
+    </p>
+  </div>
+  <div className={classes.totalParticipants}>
+    <p className={classes.totalParticipantsText}>
+      Total No of <br />
+      Participants
+    </p>
+    <p className={classes.totalParticipantsNumber}>
+      {data.length}
+    </p>
+  </div>
+</div>
+<div className={classes.searchContainer}>
+<div className={classes.icon}>
+  <SearchIcon style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
+</div>
+      <div className={classes.input}>
+        <input
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className={classes.input}
+          type="text"
+          name="searchbar"
+          id="searchbar"
+          placeholder="Search Your Name Here"
+        />
+      </div>
+    </div>
+
+    {/*  <Grid container spacing={3} style={{ marginBottom: '20px' }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
@@ -229,8 +386,8 @@ const Dashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      <Typography variant="h5" gutterBottom>Participant Details</Typography>
+*/}
+    <Typography variant="h5" gutterBottom>Participant Details</Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -244,7 +401,7 @@ const Dashboard = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((item, index) => (
+            {filteredData.map((item, index) => (
               <TableRow key={index}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.email}</TableCell>
